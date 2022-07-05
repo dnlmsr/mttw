@@ -1,14 +1,12 @@
-use curl::easy::Easy;
-use std::io::{stdout, Write};
+use reqwest;
+
+fn foo() -> Result<(), reqwest::Error> {
+    let body = reqwest::blocking::get("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=TRENTO")?
+        .text()?;
+    println!("body = {:?}", body);
+    Ok(())
+}
 
 fn main() {
-
-    let mut easy = Easy::new();
-    easy.url("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=TRENTO").unwrap();
-    easy.write_function(|data| {
-        stdout().write_all(data).unwrap();
-        Ok(data.len())
-    }).unwrap();
-    easy.perform().unwrap();
-    println!("{}",easy.response_code().unwrap());
+    foo();
 }

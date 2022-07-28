@@ -1,6 +1,7 @@
 use reqwest;
 use serde_json;
 use clap::Parser;
+use std::fs::File;
 
 /// Meteotrentino wrapper
 #[derive(Parser, Debug)]
@@ -26,6 +27,11 @@ fn get_weather_data(locality: &String) -> Result<String, reqwest::Error> {
     Ok(body)
 }
 
+fn download_icon(icon_url: &str) {
+    let mut file = File::create("icon.png").expect("Failed opening file");
+    reqwest::blocking::get(icon_url).unwrap().copy_to(&mut file).expect("Failed downloading image");
+}
+
 fn deserialize_json(data: String) -> serde_json::Result<serde_json::Value> {
    serde_json::from_str(&data)
 }
@@ -40,6 +46,8 @@ fn main() {
         temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"].as_i64().unwrap(),
         description: String::from(data["previsione"][0]["giorni"][0]["testoGiorno"].as_str().unwrap()),
     };
+
+    download_icon(data["previsione"][0]["giorni"][0]["icona"].as_str().unwrap());
 
     println!("Weather forecast for: {}.",&args.locality);
     println!("Temperatura massima: {}°C",forecast.temperature_max);

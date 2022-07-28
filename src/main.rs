@@ -38,8 +38,11 @@ fn main() {
         id: data["idPrevisione"].as_u64().unwrap(),
         temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"].as_i64().unwrap(),
         temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"].as_i64().unwrap(),
-        description: String::from(data["evoluzioneBreve"].as_str().unwrap()),
+        description: String::from(data["previsione"][0]["giorni"][0]["testoGiorno"].as_str().unwrap()),
     };
 
-    println!("{:?}",forecast);
+    println!("Weather forecast for: {}.",&args.locality);
+    println!("Temperatura massima: {}°C",forecast.temperature_max);
+    println!("Temperatura minima: {}°C",forecast.temperature_min);
+    println!("Evoluzione: {}",forecast.description);
 }

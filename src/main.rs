@@ -33,8 +33,12 @@ fn download_icon(icon_url: &str) {
         &icon_url[i..]
     };
 
-    let mut file = File::create(icon_filename).expect("Failed opening file");
-    reqwest::blocking::get(icon_url).unwrap().copy_to(&mut file).expect("Failed downloading image");
+    let icon_path = icon_filename;
+
+    if  !std::path::Path::new(icon_path).exists(){
+        let mut file = File::create(icon_path).expect("Failed opening file");
+        reqwest::blocking::get(icon_url).unwrap().copy_to(&mut file).expect("Failed downloading image");
+    }
 }
 
 fn deserialize_json(data: String) -> serde_json::Result<serde_json::Value> {

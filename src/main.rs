@@ -16,6 +16,7 @@ struct Forecast {
     id: u64,
     temperature_max: i64,
     temperature_min: i64,
+    description: String,
 }
 
 fn get_weather_data(locality: &String) -> Result<String, reqwest::Error> {
@@ -37,6 +38,7 @@ fn main() {
         id: data["idPrevisione"].as_u64().unwrap(),
         temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"].as_i64().unwrap(),
         temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"].as_i64().unwrap(),
+        description: String::from(data["evoluzioneBreve"].as_str().unwrap()),
     };
 
     println!("{:?}",forecast);

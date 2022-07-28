@@ -28,7 +28,12 @@ fn get_weather_data(locality: &String) -> Result<String, reqwest::Error> {
 }
 
 fn download_icon(icon_url: &str) {
-    let mut file = File::create("icon.png").expect("Failed opening file");
+    let icon_filename = {
+        let i = icon_url.rfind('/').unwrap()+1;
+        &icon_url[i..]
+    };
+
+    let mut file = File::create(icon_filename).expect("Failed opening file");
     reqwest::blocking::get(icon_url).unwrap().copy_to(&mut file).expect("Failed downloading image");
 }
 

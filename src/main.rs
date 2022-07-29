@@ -1,6 +1,6 @@
+use clap::Parser;
 use reqwest;
 use serde_json;
-use clap::Parser;
 use std::fs::File;
 
 /// Meteotrentino wrapper
@@ -22,46 +22,64 @@ struct Forecast {
 
 fn get_weather_data(locality: &String) -> Result<String, reqwest::Error> {
     let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
-    let body = reqwest::blocking::get(base_url+locality)?
-        .text()?;
+    let body = reqwest::blocking::get(base_url + locality)?.text()?;
     Ok(body)
 }
 
 fn download_icon(icon_url: &str) {
     let icon_filename = {
-        let i = icon_url.rfind('/').unwrap()+1;
+        let i = icon_url.rfind('/').unwrap() + 1;
         &icon_url[i..]
     };
 
-    let icons_directory = format!("{}{}",std::env::var("HOME").unwrap(),"/.cache/mttw/icons/");
+    let icons_directory = format!(
+        "{}{}",
+        std::env::var("HOME").unwrap(),
+        "/.cache/mttw/icons/"
+    );
     std::fs::create_dir_all(&icons_directory).expect("Unable to create directory");
-    let icon_path = format!("{}{}",icons_directory,icon_filename);
+    let icon_path = format!("{}{}", icons_directory, icon_filename);
 
-    if  !std::path::Path::new(&icon_path).exists(){
+    if !std::path::Path::new(&icon_path).exists() {
         let mut file = File::create(icon_path).expect("Failed opening file");
-        reqwest::blocking::get(icon_url).unwrap().copy_to(&mut file).expect("Failed downloading image");
+        reqwest::blocking::get(icon_url)
+            .unwrap()
+            .copy_to(&mut file)
+            .expect("Failed downloading image");
     }
 }
 
 fn deserialize_json(data: String) -> serde_json::Result<serde_json::Value> {
-   serde_json::from_str(&data)
+    serde_json::from_str(&data)
 }
 
 fn main() {
     let args = Args::parse();
 
     let data = deserialize_json(get_weather_data(&args.locality).unwrap()).unwrap();
-    let forecast = Forecast{
+    let forecast = Forecast {
         id: data["idPrevisione"].as_u64().unwrap(),
-        temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"].as_i64().unwrap(),
-        temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"].as_i64().unwrap(),
-        description: String::from(data["previsione"][0]["giorni"][0]["testoGiorno"].as_str().unwrap()),
+        temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"]
+            .as_i64()
+            .unwrap(),
+        temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"]
+            .as_i64()
+            .unwrap(),
+        description: String::from(
+            data["previsione"][0]["giorni"][0]["testoGiorno"]
+                .as_str()
+                .unwrap(),
+        ),
     };
 
-    download_icon(data["previsione"][0]["giorni"][0]["icona"].as_str().unwrap());
+    download_icon(
+        data["previsione"][0]["giorni"][0]["icona"]
+            .as_str()
+            .unwrap(),
+    );
 
-    println!("Weather forecast for: {}.",&args.locality);
-    println!("Temperatura massima: {}°C",forecast.temperature_max);
-    println!("Temperatura minima: {}°C",forecast.temperature_min);
-    println!("Evoluzione: {}",forecast.description);
+    println!("Weather forecast for: {}.", &args.locality);
+    println!("Temperatura massima: {}°C", forecast.temperature_max);
+    println!("Temperatura minima: {}°C", forecast.temperature_min);
+    println!("Evoluzione: {}", forecast.description);
 }

@@ -1,6 +1,7 @@
 use reqwest;
 use serde_json;
 use clap::Parser;
+use std::fs::File;
 
 /// Meteotrentino wrapper
 #[derive(Parser, Debug)]
@@ -26,6 +27,22 @@ fn get_weather_data(locality: &String) -> Result<String, reqwest::Error> {
     Ok(body)
 }
 
+fn download_icon(icon_url: &str) {
+    let icon_filename = {
+        let i = icon_url.rfind('/').unwrap()+1;
+        &icon_url[i..]
+    };
+
+    let icons_directory = format!("{}{}",std::env::var("HOME").unwrap(),"/.cache/mttw/icons/");
+    std::fs::create_dir_all(&icons_directory).expect("Unable to create directory");
+    let icon_path = format!("{}{}",icons_directory,icon_filename);
+
+    if  !std::path::Path::new(&icon_path).exists(){
+        let mut file = File::create(icon_path).expect("Failed opening file");
+        reqwest::blocking::get(icon_url).unwrap().copy_to(&mut file).expect("Failed downloading image");
+    }
+}
+
 fn deserialize_json(data: String) -> serde_json::Result<serde_json::Value> {
    serde_json::from_str(&data)
 }
@@ -40,6 +57,8 @@ fn main() {
         temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"].as_i64().unwrap(),
         description: String::from(data["previsione"][0]["giorni"][0]["testoGiorno"].as_str().unwrap()),
     };
+
+    download_icon(data["previsione"][0]["giorni"][0]["icona"].as_str().unwrap());
 
     println!("Weather forecast for: {}.",&args.locality);
     println!("Temperatura massima: {}°C",forecast.temperature_max);

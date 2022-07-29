@@ -33,9 +33,11 @@ fn download_icon(icon_url: &str) {
         &icon_url[i..]
     };
 
-    let icon_path = icon_filename;
+    let icons_directory = format!("{}{}",std::env::var("HOME").unwrap(),"/.cache/mttw/icons/");
+    std::fs::create_dir_all(&icons_directory).expect("Unable to create directory");
+    let icon_path = format!("{}{}",icons_directory,icon_filename);
 
-    if  !std::path::Path::new(icon_path).exists(){
+    if  !std::path::Path::new(&icon_path).exists(){
         let mut file = File::create(icon_path).expect("Failed opening file");
         reqwest::blocking::get(icon_url).unwrap().copy_to(&mut file).expect("Failed downloading image");
     }

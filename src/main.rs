@@ -21,7 +21,7 @@ struct Forecast {
 }
 
 /// Fetch weather data from meteotrentino site
-fn get_weather_data(locality: &String) -> Result<String, reqwest::Error> {
+fn fetch_weather_data(locality: &String) -> Result<String, reqwest::Error> {
     let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
     let body = reqwest::blocking::get(base_url + locality)?.text()?;
     Ok(body)
@@ -62,7 +62,7 @@ fn deserialize_json(data: String) -> serde_json::Result<serde_json::Value> {
 fn main() {
     let args = Args::parse();
 
-    let data = deserialize_json(get_weather_data(&args.locality).unwrap()).unwrap();
+    let data = deserialize_json(fetch_weather_data(&args.locality).unwrap()).unwrap();
     let forecast = Forecast {
         id: data["idPrevisione"].as_u64().unwrap(),
         temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"]

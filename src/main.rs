@@ -20,18 +20,22 @@ struct Forecast {
     description: String,
 }
 
+/// Fetch weather data from meteotrentino site
 fn get_weather_data(locality: &String) -> Result<String, reqwest::Error> {
     let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
     let body = reqwest::blocking::get(base_url + locality)?.text()?;
     Ok(body)
 }
 
+/// Download icon and store it in cache
 fn download_icon(icon_url: &str) {
+    // Get icon full name
     let icon_filename = {
         let i = icon_url.rfind('/').unwrap() + 1;
         &icon_url[i..]
     };
 
+    // Create icons directory if it doesn't exist
     let icons_directory = format!(
         "{}{}",
         std::env::var("HOME").unwrap(),
@@ -40,6 +44,7 @@ fn download_icon(icon_url: &str) {
     std::fs::create_dir_all(&icons_directory).expect("Unable to create directory");
     let icon_path = format!("{}{}", icons_directory, icon_filename);
 
+    // Save icon if it doesn't exist
     if !std::path::Path::new(&icon_path).exists() {
         let mut file = File::create(icon_path).expect("Failed opening file");
         reqwest::blocking::get(icon_url)
@@ -49,6 +54,7 @@ fn download_icon(icon_url: &str) {
     }
 }
 
+/// Deserialize JSON data
 fn deserialize_json(data: String) -> serde_json::Result<serde_json::Value> {
     serde_json::from_str(&data)
 }

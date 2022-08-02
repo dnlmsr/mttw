@@ -21,10 +21,26 @@ mod weather {
     }
 
     /// Fetch weather data from meteotrentino site
-    pub fn fetch_weather_data(locality: &String) -> Result<String, reqwest::Error> {
+    pub fn fetch_weather_data(locality: &String) -> Result<Forecast, reqwest::Error> {
         let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
         let body = reqwest::blocking::get(base_url + locality)?.text()?;
-        Ok(body)
+
+        let data = deserialize_json(body).unwrap();
+
+        Ok(Forecast {
+            id: data["idPrevisione"].as_u64().unwrap(),
+            temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"]
+                .as_i64()
+                .unwrap(),
+            temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"]
+                .as_i64()
+                .unwrap(),
+            description: String::from(
+                data["previsione"][0]["giorni"][0]["testoGiorno"]
+                    .as_str()
+                    .unwrap(),
+            ),
+        })
     }
 
     /// Download icon and store it in cache
@@ -55,7 +71,7 @@ mod weather {
     }
 
     /// Deserialize JSON data
-    pub fn deserialize_json(data: String) -> serde_json::Result<serde_json::Value> {
+    fn deserialize_json(data: String) -> serde_json::Result<serde_json::Value> {
         serde_json::from_str(&data)
     }
 }
@@ -63,24 +79,7 @@ mod weather {
 fn main() {
     let args = Args::parse();
 
-    let data = crate::weather::deserialize_json(
-        crate::weather::fetch_weather_data(&args.locality).unwrap(),
-    )
-    .unwrap();
-    let forecast = crate::weather::Forecast {
-        id: data["idPrevisione"].as_u64().unwrap(),
-        temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"]
-            .as_i64()
-            .unwrap(),
-        temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"]
-            .as_i64()
-            .unwrap(),
-        description: String::from(
-            data["previsione"][0]["giorni"][0]["testoGiorno"]
-                .as_str()
-                .unwrap(),
-        ),
-    };
+    let forecast = crate::weather::fetch_weather_data(&args.locality).unwrap();
 
     println!("Weather forecast for: {}.", &args.locality);
     println!("Temperatura massima: {}°C", forecast.temperature_max);

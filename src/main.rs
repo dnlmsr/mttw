@@ -25,7 +25,7 @@ mod weather {
         let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
         let body = reqwest::blocking::get(base_url + locality)?.text()?;
 
-        let data = deserialize_json(body).unwrap();
+        let data: serde_json::Value = serde_json::from_str(&body).unwrap();
 
         Ok(Forecast {
             id: data["idPrevisione"].as_u64().unwrap(),
@@ -68,11 +68,6 @@ mod weather {
                 .copy_to(&mut file)
                 .expect("Failed downloading image");
         }
-    }
-
-    /// Deserialize JSON data
-    fn deserialize_json(data: String) -> serde_json::Result<serde_json::Value> {
-        serde_json::from_str(&data)
     }
 }
 

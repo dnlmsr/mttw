@@ -1,5 +1,3 @@
-use std::fs::File;
-
 #[derive(Debug)]
 pub struct Forecast {
     pub id: u64,
@@ -50,7 +48,7 @@ fn download_icon(icon_url: &str) {
 
     // Save icon if it doesn't exist
     if !std::path::Path::new(&icon_path).exists() {
-        let mut file = File::create(icon_path).expect("Failed opening file");
+        let mut file = std::fs::File::create(icon_path).expect("Failed opening file");
         reqwest::blocking::get(icon_url)
             .unwrap()
             .copy_to(&mut file)

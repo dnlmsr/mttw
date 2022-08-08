@@ -29,6 +29,7 @@ pub fn fetch_weather_data(locality: &String) -> Result<Forecast, reqwest::Error>
     })
 }
 
+/*
 /// Download icon and store it in cache
 fn download_icon(icon_url: &str) {
     // Get icon full name
@@ -55,3 +56,4 @@ fn download_icon(icon_url: &str) {
             .expect("Failed downloading image");
     }
 }
+*/

@@ -1,3 +1,5 @@
+use chrono::{DateTime, FixedOffset};
+
 #[derive(Debug)]
 pub struct Forecast {
     pub id: u64,
@@ -12,6 +14,16 @@ pub fn fetch_weather_data(locality: &String) -> Result<Forecast, reqwest::Error>
     let body = reqwest::blocking::get(base_url + locality)?.text()?;
 
     let data: serde_json::Value = serde_json::from_str(&body).unwrap();
+
+    let date = data["dataPubblicazione"].as_str().unwrap();
+
+    println!(
+        "Date is: {}",
+        DateTime::parse_from_str(date, "%Y-%m-%dT%H:%M%z")
+            .unwrap()
+            .format("%d/%m/%Y %H:%M:%S %:z")
+            .to_string()
+    );
 
     Ok(Forecast {
         id: data["idPrevisione"].as_u64().unwrap(),

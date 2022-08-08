@@ -6,6 +6,7 @@ pub struct Forecast {
     pub temperature_max: i64,
     pub temperature_min: i64,
     pub description: String,
+    pub date: DateTime<FixedOffset>,
 }
 
 /// Fetch weather data from meteotrentino site
@@ -14,16 +15,6 @@ pub fn fetch_weather_data(locality: &String) -> Result<Forecast, reqwest::Error>
     let body = reqwest::blocking::get(base_url + locality)?.text()?;
 
     let data: serde_json::Value = serde_json::from_str(&body).unwrap();
-
-    let date = data["dataPubblicazione"].as_str().unwrap();
-
-    println!(
-        "Date is: {}",
-        DateTime::parse_from_str(date, "%Y-%m-%dT%H:%M%z")
-            .unwrap()
-            .format("%d/%m/%Y %H:%M:%S %:z")
-            .to_string()
-    );
 
     Ok(Forecast {
         id: data["idPrevisione"].as_u64().unwrap(),
@@ -38,6 +29,11 @@ pub fn fetch_weather_data(locality: &String) -> Result<Forecast, reqwest::Error>
                 .as_str()
                 .unwrap(),
         ),
+        date: DateTime::parse_from_str(
+            data["dataPubblicazione"].as_str().unwrap(),
+            "%Y-%m-%dT%H:%M%z",
+        )
+        .unwrap(),
     })
 }
 

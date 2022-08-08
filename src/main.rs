@@ -4,8 +4,8 @@ use clap::Parser;
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
-    /// Name of the locality
-    #[clap(short, long, value_parser)]
+    /// Name of the locality, defaults to "TRENTO"
+    #[clap(short, long, value_parser, default_value_t = String::from("TRENTO"))]
     locality: String,
 }
 

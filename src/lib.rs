@@ -1,9 +1,12 @@
+use chrono::{DateTime, FixedOffset};
+
 #[derive(Debug)]
 pub struct Forecast {
     pub id: u64,
     pub temperature_max: i64,
     pub temperature_min: i64,
     pub description: String,
+    pub date: DateTime<FixedOffset>,
 }
 
 /// Fetch weather data from meteotrentino site
@@ -26,6 +29,11 @@ pub fn fetch_weather_data(locality: &String) -> Result<Forecast, reqwest::Error>
                 .as_str()
                 .unwrap(),
         ),
+        date: DateTime::parse_from_str(
+            data["dataPubblicazione"].as_str().unwrap(),
+            "%Y-%m-%dT%H:%M%z",
+        )
+        .unwrap(),
     })
 }
 

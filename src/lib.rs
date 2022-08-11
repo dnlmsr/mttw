@@ -10,7 +10,7 @@ pub struct Forecast {
 }
 
 /// Fetch weather data from meteotrentino site
-pub fn fetch_weather_data(locality: &String) -> Result<Forecast, reqwest::Error> {
+pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
     let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
     let body = reqwest::blocking::get(base_url + locality)?.text()?;
 

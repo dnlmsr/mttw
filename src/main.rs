@@ -17,5 +17,5 @@ fn main() {
     println!("Weather forecast for: {}.", &args.locality);
     println!("Temperatura massima: {}°C", forecast.temperature_max);
     println!("Temperatura minima: {}°C", forecast.temperature_min);
-    println!("Evoluzione: {}", forecast.description);
+    println!("Description: {}", forecast.description);
 }

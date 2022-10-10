@@ -16,6 +16,12 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
 
     let data: serde_json::Value = serde_json::from_str(&body).unwrap();
 
+    for day in data["previsione"][0]["giorni"].as_array().unwrap() {
+        for range in day["fasce"].as_array().unwrap() {
+            println!("Fascia: {}", range["fasciaPer"]);
+        }
+    }
+
     Ok(Forecast {
         id: data["idPrevisione"].as_u64().unwrap(),
         temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"]

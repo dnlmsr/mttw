@@ -1,3 +1,4 @@
+use chrono::Utc;
 use clap::Parser;
 
 /// Meteotrentino wrapper
@@ -15,6 +16,15 @@ fn main() {
     let forecast = mttw::fetch_weather_data(&args.locality).unwrap();
 
     println!("Weather forecast for: {}.", &args.locality);
+    {
+        let time_now = Utc::now().time();
+        let time_difference = time_now - forecast.date.time();
+        println!(
+            "Last forecast update was {} hours and {} minutes ago.",
+            time_difference.num_hours(),
+            time_difference.num_minutes() % 60
+        );
+    }
     println!(
         "Temperatura massima: {}°C",
         forecast.days[0].temperature_max

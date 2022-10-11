@@ -1,3 +1,4 @@
+use chrono::naive::NaiveDate;
 use chrono::{DateTime, FixedOffset};
 
 #[derive(Debug)]
@@ -9,6 +10,11 @@ pub struct Forecast {
     pub date: DateTime<FixedOffset>,
 }
 
+#[derive(Debug)]
+struct Day {
+    date: NaiveDate,
+}
+
 /// Fetch weather data from meteotrentino site
 pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
     let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
@@ -16,11 +22,18 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
 
     let data: serde_json::Value = serde_json::from_str(&body).unwrap();
 
+    let mut days: Vec<Day> = Vec::new();
+
     for day in data["previsione"][0]["giorni"].as_array().unwrap() {
         for range in day["fasce"].as_array().unwrap() {
             println!("Fascia: {}", range["fasciaPer"]);
         }
+        days.push(Day {
+            date: NaiveDate::parse_from_str(day["giorno"].as_str().unwrap(), "%Y-%m-%d").unwrap(),
+        });
     }
+
+    dbg!(days);
 
     Ok(Forecast {
         id: data["idPrevisione"].as_u64().unwrap(),

@@ -4,21 +4,22 @@ use chrono::{DateTime, FixedOffset};
 #[derive(Debug)]
 pub struct Forecast {
     pub id: u64,
+    pub date: DateTime<FixedOffset>,
+    pub days: Vec<Day>,
+}
+
+#[derive(Debug)]
+pub struct Day {
+    pub date: NaiveDate,
     pub temperature_max: i64,
     pub temperature_min: i64,
     pub description: String,
-    pub date: DateTime<FixedOffset>,
+    pub time_ranges: Vec<TimeRange>,
 }
 
 #[derive(Debug)]
-struct Day {
-    date: NaiveDate,
-    time_ranges: Vec<TimeRange>,
-}
-
-#[derive(Debug)]
-struct TimeRange {
-    time_range: String,
+pub struct TimeRange {
+    pub time_range: String,
 }
 
 /// Fetch weather data from meteotrentino site
@@ -46,30 +47,31 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
         days.push(Day {
             date: NaiveDate::parse_from_str(day_raw["giorno"].as_str().unwrap(), "%Y-%m-%d")
                 .unwrap(),
+            temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"]
+                .as_i64()
+                .unwrap(),
+            temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"]
+                .as_i64()
+                .unwrap(),
+            description: String::from(
+                data["previsione"][0]["giorni"][0]["testoGiorno"]
+                    .as_str()
+                    .unwrap(),
+            ),
             time_ranges: ranges,
         });
     }
 
-    dbg!(days);
+    dbg!(&days);
 
     Ok(Forecast {
         id: data["idPrevisione"].as_u64().unwrap(),
-        temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"]
-            .as_i64()
-            .unwrap(),
-        temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"]
-            .as_i64()
-            .unwrap(),
-        description: String::from(
-            data["previsione"][0]["giorni"][0]["testoGiorno"]
-                .as_str()
-                .unwrap(),
-        ),
         date: DateTime::parse_from_str(
             data["dataPubblicazione"].as_str().unwrap(),
             "%Y-%m-%dT%H:%M%z",
         )
         .unwrap(),
+        days,
     })
 }
 

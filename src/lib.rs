@@ -18,7 +18,7 @@ struct Day {
 
 #[derive(Debug)]
 struct TimeRange {
-    range: String,
+    time_range: String,
 }
 
 /// Fetch weather data from meteotrentino site
@@ -30,15 +30,22 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
 
     let mut days: Vec<Day> = Vec::new();
 
-    for day in data["previsione"][0]["giorni"].as_array().unwrap() {
+    // Iterate through all days
+    for day_raw in data["previsione"][0]["giorni"].as_array().unwrap() {
         let mut ranges: Vec<TimeRange> = Vec::new();
-        for time_range in day["fasce"].as_array().unwrap() {
+
+        // Iterate through all time ranges
+        for time_range_raw in day_raw["fasce"].as_array().unwrap() {
+            // Push time range to vector
             ranges.push(TimeRange {
-                range: time_range["fasciaOre"].to_string(),
+                time_range: time_range_raw["fasciaOre"].to_string(),
             });
         }
+
+        // Push day to vector
         days.push(Day {
-            date: NaiveDate::parse_from_str(day["giorno"].as_str().unwrap(), "%Y-%m-%d").unwrap(),
+            date: NaiveDate::parse_from_str(day_raw["giorno"].as_str().unwrap(), "%Y-%m-%d")
+                .unwrap(),
             time_ranges: ranges,
         });
     }

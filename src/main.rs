@@ -15,7 +15,10 @@ fn main() {
     let forecast = mttw::fetch_weather_data(&args.locality).unwrap();
 
     println!("Weather forecast for: {}.", &args.locality);
-    println!("Temperatura massima: {}°C", forecast.temperature_max);
-    println!("Temperatura minima: {}°C", forecast.temperature_min);
-    println!("Description: {}", forecast.description);
+    println!(
+        "Temperatura massima: {}°C",
+        forecast.days[0].temperature_max
+    );
+    println!("Temperatura minima: {}°C", forecast.days[0].temperature_min);
+    println!("Description: {}", forecast.days[0].description);
 }

@@ -4,6 +4,8 @@ use chrono::{DateTime, FixedOffset};
 #[derive(Debug)]
 pub struct Forecast {
     pub id: u64,
+    pub locality: String,
+    pub height: u16,
     pub date: DateTime<FixedOffset>,
     pub days: Vec<Day>,
 }
@@ -70,6 +72,8 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
         )
         .unwrap(),
         days,
+        locality: data["previsione"][0]["localita"].to_string(),
+        height: data["previsione"][0]["quota"].as_u64().unwrap() as u16,
     })
 }
 

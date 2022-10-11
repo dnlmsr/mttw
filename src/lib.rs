@@ -62,8 +62,6 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
         });
     }
 
-    dbg!(&days);
-
     Ok(Forecast {
         id: data["idPrevisione"].as_u64().unwrap(),
         date: DateTime::parse_from_str(

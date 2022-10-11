@@ -35,12 +35,12 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
 
     // Iterate through all days
     for day_raw in data["previsione"][0]["giorni"].as_array().unwrap() {
-        let mut ranges: Vec<TimeRange> = Vec::new();
+        let mut time_ranges: Vec<TimeRange> = Vec::new();
 
         // Iterate through all time ranges
         for time_range_raw in day_raw["fasce"].as_array().unwrap() {
             // Push time range to vector
-            ranges.push(TimeRange {
+            time_ranges.push(TimeRange {
                 time_range: time_range_raw["fasciaOre"].to_string(),
             });
         }
@@ -60,7 +60,7 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
                     .as_str()
                     .unwrap(),
             ),
-            time_ranges: ranges,
+            time_ranges,
         });
     }
 

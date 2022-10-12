@@ -26,10 +26,10 @@ pub struct Day {
     pub date: NaiveDate,
 
     /// The maximum temperature expressed in °C
-    pub temperature_max: i64,
+    pub temperature_max: i8,
 
     /// The minimum temperature expressed in °C
-    pub temperature_min: i64,
+    pub temperature_min: i8,
 
     /// A long description of the weather conditions
     pub description: String,
@@ -96,10 +96,10 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
                 .unwrap(),
             temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"]
                 .as_i64()
-                .unwrap(),
+                .unwrap() as i8,
             temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"]
                 .as_i64()
-                .unwrap(),
+                .unwrap() as i8,
             description: String::from(
                 data["previsione"][0]["giorni"][0]["testoGiorno"]
                     .as_str()

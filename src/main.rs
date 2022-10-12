@@ -25,7 +25,26 @@ fn main() {
             time_difference.num_minutes() % 60
         );
     }
+    println!("\nDay forecast");
     println!("Max. temperature: {}°C", forecast.days[0].temperature_max);
     println!("Min temperature: {}°C", forecast.days[0].temperature_min);
     println!("Description: {}", forecast.days[0].description);
+
+    println!("\nTime range forecast");
+    println!(
+        "Brief description {}",
+        forecast.days[0].time_ranges[0].brief_description
+    );
+    println!(
+        "Rain probability: {}",
+        forecast.days[0].time_ranges[0].rain_probability
+    );
+    println!(
+        "Rain intensity: {}",
+        forecast.days[0].time_ranges[0].rain_intensity
+    );
+    println!(
+        "Freezing level: {}m",
+        forecast.days[0].time_ranges[0].freezing_level
+    );
 }

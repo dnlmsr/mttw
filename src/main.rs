@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::Local;
 use clap::Parser;
 
 /// Meteotrentino wrapper
@@ -17,7 +17,7 @@ fn main() {
 
     println!("Weather forecast for: {}.", &args.locality);
     {
-        let time_now = Utc::now().time();
+        let time_now = Local::now().time();
         let time_difference = time_now - forecast.date.time();
         println!(
             "Last forecast update was {} hours and {} minutes ago.",

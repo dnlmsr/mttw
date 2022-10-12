@@ -1,13 +1,11 @@
-use chrono::naive::NaiveDate;
-use chrono::{DateTime, FixedOffset};
+use chrono::prelude::*;
 
 #[derive(Debug)]
 pub struct Forecast {
     pub id: u64,
     pub locality: String,
     pub height: u16,
-    // TODO: Fix time offset, given time is expressed in local time +timezone
-    pub date: DateTime<FixedOffset>,
+    pub date: DateTime<Local>,
     pub days: Vec<Day>,
 }
 
@@ -83,11 +81,12 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
 
     Ok(Forecast {
         id: data["idPrevisione"].as_u64().unwrap(),
-        date: DateTime::parse_from_str(
-            data["dataPubblicazione"].as_str().unwrap(),
-            "%Y-%m-%dT%H:%M%z",
-        )
-        .unwrap(),
+        date: Local
+            .datetime_from_str(
+                data["dataPubblicazione"].as_str().unwrap(),
+                "%Y-%m-%dT%H:%M%z",
+            )
+            .unwrap(),
         days,
         locality: data["previsione"][0]["localita"].to_string(),
         height: data["previsione"][0]["quota"].as_u64().unwrap() as u16,

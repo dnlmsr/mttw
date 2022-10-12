@@ -1,29 +1,59 @@
 use chrono::prelude::*;
 
+/// The main forecast structure which contains all informations parsed from the official Meteotrentino data
 #[derive(Debug)]
 pub struct Forecast {
+    /// Forecast ID
     pub id: u64,
+
+    /// The specified locality
     pub locality: String,
+
+    /// The height of the locality expressed in meters above sea level
     pub height: u16,
+
+    /// The forecast date and local time
     pub date: DateTime<Local>,
+
+    /// Vector of available upcoming days
     pub days: Vec<Day>,
 }
 
 #[derive(Debug)]
+/// This structure contains information regarding the forecast during a specific day
 pub struct Day {
+    /// The date of the day
     pub date: NaiveDate,
+
+    /// The maximum temperature expressed in °C
     pub temperature_max: i64,
+
+    /// The minimum temperature expressed in °C
     pub temperature_min: i64,
+
+    /// A long description of the weather conditions
     pub description: String,
+
+    /// Vector of all available time ranges
     pub time_ranges: Vec<TimeRange>,
 }
 
+/// This structure contains information regarding the forecast of a given time range.
 #[derive(Debug)]
 pub struct TimeRange {
+    /// The time range expressed in hh-hh
     pub time_range: String,
+
+    /// A brief description associated to the icon
     pub brief_description: String,
+
+    /// Rain probability expressed with a number between 1 and 4
     pub rain_probability: u8,
+
+    /// Rain intensity expressed with a number between 1 and 4
     pub rain_intensity: u8,
+
+    /// The freezing level expressed in meters above sea level
     pub freezing_level: u16,
 }
 

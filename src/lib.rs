@@ -23,8 +23,10 @@ pub struct Day {
 #[derive(Debug)]
 pub struct TimeRange {
     pub time_range: String,
+    pub brief_description: String,
     pub rain_probability: u8,
     pub rain_intensity: u8,
+    pub freezing_level: u16,
 }
 
 /// Fetch weather data from meteotrentino site
@@ -47,6 +49,8 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
                 time_range: time_range_raw["fasciaOre"].to_string(),
                 rain_probability: time_range_raw["idPrecProb"].as_u64().unwrap() as u8,
                 rain_intensity: time_range_raw["idPrecInten"].as_u64().unwrap() as u8,
+                freezing_level: time_range_raw["idPrecInten"].as_u64().unwrap() as u16,
+                brief_description: time_range_raw["descIcona"].to_string(),
             });
         }
 

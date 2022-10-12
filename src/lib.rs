@@ -6,6 +6,7 @@ pub struct Forecast {
     pub id: u64,
     pub locality: String,
     pub height: u16,
+    // TODO: Fix time offset, given time is expressed in local time +timezone
     pub date: DateTime<FixedOffset>,
     pub days: Vec<Day>,
 }
@@ -22,6 +23,8 @@ pub struct Day {
 #[derive(Debug)]
 pub struct TimeRange {
     pub time_range: String,
+    pub rain_probability: u8,
+    pub rain_intensity: u8,
 }
 
 /// Fetch weather data from meteotrentino site
@@ -42,6 +45,8 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
             // Push time range to vector
             time_ranges.push(TimeRange {
                 time_range: time_range_raw["fasciaOre"].to_string(),
+                rain_probability: time_range_raw["idPrecProb"].as_u64().unwrap() as u8,
+                rain_intensity: time_range_raw["idPrecInten"].as_u64().unwrap() as u8,
             });
         }
 

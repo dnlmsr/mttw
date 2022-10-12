@@ -25,10 +25,7 @@ fn main() {
             time_difference.num_minutes() % 60
         );
     }
-    println!(
-        "Temperatura massima: {}°C",
-        forecast.days[0].temperature_max
-    );
-    println!("Temperatura minima: {}°C", forecast.days[0].temperature_min);
+    println!("Max. temperature: {}°C", forecast.days[0].temperature_max);
+    println!("Min temperature: {}°C", forecast.days[0].temperature_min);
     println!("Description: {}", forecast.days[0].description);
 }

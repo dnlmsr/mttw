@@ -47,9 +47,17 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
             // Push time range to vector
             time_ranges.push(TimeRange {
                 time_range: time_range_raw["fasciaOre"].to_string(),
-                rain_probability: time_range_raw["idPrecProb"].as_u64().unwrap() as u8,
-                rain_intensity: time_range_raw["idPrecInten"].as_u64().unwrap() as u8,
-                freezing_level: time_range_raw["idPrecInten"].as_u64().unwrap() as u16,
+                rain_probability: time_range_raw["idPrecProb"]
+                    .as_str()
+                    .unwrap()
+                    .parse::<u8>()
+                    .unwrap(),
+                rain_intensity: time_range_raw["idPrecInten"]
+                    .as_str()
+                    .unwrap()
+                    .parse::<u8>()
+                    .unwrap(),
+                freezing_level: time_range_raw["zeroTermico"].as_u64().unwrap() as u16,
                 brief_description: time_range_raw["descIcona"].to_string(),
             });
         }

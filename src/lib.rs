@@ -58,7 +58,7 @@ pub struct TimeRange {
 }
 
 /// Build Forecast struct from raw data
-fn build_weather_data(body: &str) -> Result<Forecast, serde_json::Error> {
+fn build_weather_data(body: &str) -> serde_json::Result<Forecast> {
     let raw_data: serde_json::Value = serde_json::from_str(&body)?;
 
     let mut days: Vec<Day> = Vec::new();

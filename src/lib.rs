@@ -91,17 +91,9 @@ fn build_weather_data(body: &str) -> serde_json::Result<Forecast> {
         days.push(Day {
             date: NaiveDate::parse_from_str(day_raw["giorno"].as_str().unwrap(), "%Y-%m-%d")
                 .unwrap(),
-            temperature_max: raw_data["previsione"][0]["giorni"][0]["tMaxGiorno"]
-                .as_i64()
-                .unwrap() as i8,
-            temperature_min: raw_data["previsione"][0]["giorni"][0]["tMinGiorno"]
-                .as_i64()
-                .unwrap() as i8,
-            description: String::from(
-                raw_data["previsione"][0]["giorni"][0]["testoGiorno"]
-                    .as_str()
-                    .unwrap(),
-            ),
+            temperature_max: day_raw["tMaxGiorno"].as_i64().unwrap() as i8,
+            temperature_min: day_raw["tMinGiorno"].as_i64().unwrap() as i8,
+            description: String::from(day_raw["testoGiorno"].as_str().unwrap()),
             time_ranges,
         });
     }

@@ -1,13 +1,24 @@
 use chrono::Local;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 /// Meteotrentino wrapper
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
+#[clap(propagate_version = true)]
 struct Args {
     /// Name of the locality, defaults to "TRENTO"
     #[clap(short, long, value_parser, default_value_t = String::from("TRENTO"))]
     locality: String,
+
+    #[clap(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand, Debug)]
+enum Commands {
+    /// Show today weather
+    Today {},
+    Tomorrow {},
 }
 
 fn main() {

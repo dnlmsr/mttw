@@ -57,17 +57,14 @@ pub struct TimeRange {
     pub freezing_level: u16,
 }
 
-/// Fetch weather data from meteotrentino site
-pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
-    let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
-    let body = reqwest::blocking::get(base_url + locality)?.text()?;
-
-    let data: serde_json::Value = serde_json::from_str(&body).unwrap();
+/// Build Forecast struct from raw data
+fn build_weather_data(body: &str) -> Result<Forecast, serde_json::Error> {
+    let raw_data: serde_json::Value = serde_json::from_str(&body)?;
 
     let mut days: Vec<Day> = Vec::new();
 
     // Iterate through all days
-    for day_raw in data["previsione"][0]["giorni"].as_array().unwrap() {
+    for day_raw in raw_data["previsione"][0]["giorni"].as_array().unwrap() {
         let mut time_ranges: Vec<TimeRange> = Vec::new();
 
         // Iterate through all time ranges
@@ -94,14 +91,14 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
         days.push(Day {
             date: NaiveDate::parse_from_str(day_raw["giorno"].as_str().unwrap(), "%Y-%m-%d")
                 .unwrap(),
-            temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"]
+            temperature_max: raw_data["previsione"][0]["giorni"][0]["tMaxGiorno"]
                 .as_i64()
                 .unwrap() as i8,
-            temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"]
+            temperature_min: raw_data["previsione"][0]["giorni"][0]["tMinGiorno"]
                 .as_i64()
                 .unwrap() as i8,
             description: String::from(
-                data["previsione"][0]["giorni"][0]["testoGiorno"]
+                raw_data["previsione"][0]["giorni"][0]["testoGiorno"]
                     .as_str()
                     .unwrap(),
             ),
@@ -110,17 +107,24 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
     }
 
     Ok(Forecast {
-        id: data["idPrevisione"].as_u64().unwrap(),
+        id: raw_data["idPrevisione"].as_u64().unwrap(),
         date: Local
             .datetime_from_str(
-                data["dataPubblicazione"].as_str().unwrap(),
+                raw_data["dataPubblicazione"].as_str().unwrap(),
                 "%Y-%m-%dT%H:%M%z",
             )
             .unwrap(),
         days,
-        locality: data["previsione"][0]["localita"].to_string(),
-        height: data["previsione"][0]["quota"].as_u64().unwrap() as u16,
+        locality: raw_data["previsione"][0]["localita"].to_string(),
+        height: raw_data["previsione"][0]["quota"].as_u64().unwrap() as u16,
     })
+}
+
+/// Fetch weather data from meteotrentino site
+pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
+    let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
+    let body = reqwest::blocking::get(base_url + locality)?.text()?;
+    Ok(build_weather_data(&body).unwrap())
 }
 
 /*

@@ -48,10 +48,10 @@ pub struct TimeRange {
     pub brief_description: String,
 
     /// Rain probability expressed with a number between 1 and 4
-    pub rain_probability: u8,
+    pub rain_probability: i8,
 
     /// Rain intensity expressed with a number between 1 and 4
-    pub rain_intensity: u8,
+    pub rain_intensity: i8,
 
     /// The freezing level expressed in meters above sea level
     pub freezing_level: u16,
@@ -78,12 +78,12 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
                 rain_probability: time_range_raw["idPrecProb"]
                     .as_str()
                     .unwrap()
-                    .parse::<u8>()
+                    .parse::<i8>()
                     .unwrap(),
                 rain_intensity: time_range_raw["idPrecInten"]
                     .as_str()
                     .unwrap()
-                    .parse::<u8>()
+                    .parse::<i8>()
                     .unwrap(),
                 freezing_level: time_range_raw["zeroTermico"].as_u64().unwrap() as u16,
                 brief_description: time_range_raw["descIcona"].to_string(),

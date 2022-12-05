@@ -7,7 +7,7 @@ use clap::{Parser, Subcommand};
 #[clap(propagate_version = true)]
 struct Args {
     /// Name of the locality
-    #[clap(short, long, value_parser, default_value_t = String::from("TRENTO"))]
+    #[clap(global = true, short, long, value_parser, default_value_t = String::from("TRENTO"))]
     locality: String,
 
     #[clap(subcommand)]

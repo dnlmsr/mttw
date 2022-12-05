@@ -11,7 +11,7 @@ struct Args {
     locality: String,
 
     #[clap(subcommand)]
-    command: Commands,
+    command: Option<Commands>,
 }
 
 #[derive(Subcommand, Debug)]
@@ -38,8 +38,9 @@ fn main() {
     }
 
     let day = match &args.command {
-        Commands::Today => 0,
-        Commands::Tomorrow => 1,
+        None => 0,
+        Some(Commands::Today) => 0,
+        Some(Commands::Tomorrow) => 1,
     };
     println!("\nDay forecast");
     println!("Max. temperature: {}°C", forecast.days[day].temperature_max);

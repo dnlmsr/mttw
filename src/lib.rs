@@ -55,6 +55,9 @@ pub struct TimeRange {
 
     /// The freezing level expressed in meters above sea level
     pub freezing_level: u16,
+
+    /// The snow altitude expressed in meters above sea level
+    pub snow_altitude: Option<u64>,
 }
 
 /// Build Forecast struct from raw data
@@ -83,6 +86,7 @@ fn build_weather_data(body: &str) -> serde_json::Result<Forecast> {
                     .parse::<i8>()
                     .unwrap(),
                 freezing_level: time_range_raw["zeroTermico"].as_u64().unwrap() as u16,
+                snow_altitude: time_range_raw["limiteNevicate"].as_u64(),
                 brief_description: time_range_raw["descIcona"].to_string(),
             });
         }

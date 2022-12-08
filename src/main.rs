@@ -64,4 +64,8 @@ fn main() {
         "Freezing level: {}m",
         forecast.days[day].time_ranges[0].freezing_level
     );
+    match forecast.days[day].time_ranges[0].snow_altitude {
+        Some(snow_altitude) => println!("Snow altitude: {}m", snow_altitude),
+        None => (),
+    };
 }

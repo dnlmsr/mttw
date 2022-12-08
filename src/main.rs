@@ -1,13 +1,24 @@
 use chrono::Local;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 /// Meteotrentino wrapper
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
+#[clap(propagate_version = true)]
 struct Args {
-    /// Name of the locality, defaults to "TRENTO"
-    #[clap(short, long, value_parser, default_value_t = String::from("TRENTO"))]
+    /// Name of the locality
+    #[clap(global = true, short, long, value_parser, default_value_t = String::from("TRENTO"))]
     locality: String,
+
+    #[clap(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand, Debug)]
+enum Commands {
+    /// Show today weather
+    Today,
+    Tomorrow,
 }
 
 fn main() {
@@ -25,26 +36,32 @@ fn main() {
             time_difference.num_minutes() % 60
         );
     }
+
+    let day = match &args.command {
+        None => 0,
+        Some(Commands::Today) => 0,
+        Some(Commands::Tomorrow) => 1,
+    };
     println!("\nDay forecast");
-    println!("Max. temperature: {}°C", forecast.days[0].temperature_max);
-    println!("Min temperature: {}°C", forecast.days[0].temperature_min);
-    println!("Description: {}", forecast.days[0].description);
+    println!("Max. temperature: {}°C", forecast.days[day].temperature_max);
+    println!("Min temperature: {}°C", forecast.days[day].temperature_min);
+    println!("Description: {}", forecast.days[day].description);
 
     println!("\nTime range forecast");
     println!(
         "Brief description {}",
-        forecast.days[0].time_ranges[0].brief_description
+        forecast.days[day].time_ranges[0].brief_description
     );
     println!(
         "Rain probability: {}",
-        forecast.days[0].time_ranges[0].rain_probability
+        forecast.days[day].time_ranges[0].rain_probability
     );
     println!(
         "Rain intensity: {}",
-        forecast.days[0].time_ranges[0].rain_intensity
+        forecast.days[day].time_ranges[0].rain_intensity
     );
     println!(
         "Freezing level: {}m",
-        forecast.days[0].time_ranges[0].freezing_level
+        forecast.days[day].time_ranges[0].freezing_level
     );
 }

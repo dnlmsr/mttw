@@ -14,10 +14,13 @@ struct Args {
     command: Option<Commands>,
 }
 
+/// CLI commands
 #[derive(Subcommand, Debug)]
 enum Commands {
     /// Show today weather
     Today,
+
+    /// Show tomorrow weather
     Tomorrow,
 }
 
@@ -61,7 +64,7 @@ fn main() {
     );
     println!(
         "Freezing level: {}m",
-        forecast.days[day].time_ranges[0].freezing_level
+        forecast.days[day].time_ranges[0].freezing_altitude
     );
     match forecast.days[day].time_ranges[0].snow_altitude {
         Some(snow_altitude) => println!("Snow altitude: {}m", snow_altitude),

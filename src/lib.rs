@@ -1,4 +1,20 @@
 use chrono::prelude::*;
+use dirs::config_dir;
+use serde_derive::Deserialize;
+
+/// Config file main struct
+#[derive(Deserialize)]
+struct Config {
+    /// Config file default section
+    default: ConfigDefault,
+}
+
+/// Config file default section
+#[derive(Deserialize)]
+struct ConfigDefault {
+    /// Default locality
+    locality: String,
+}
 
 /// The main forecast structure which contains all informations parsed from the official Meteotrentino data
 #[derive(Debug)]
@@ -53,21 +69,21 @@ pub struct TimeRange {
     /// Rain intensity expressed with a number between 1 and 4
     pub rain_intensity: i8,
 
-    /// The freezing level expressed in meters above sea level
-    pub freezing_level: u16,
+    /// The freezing altitude expressed in meters above sea level
+    pub freezing_altitude: u16,
+
+    /// The snow altitude expressed in meters above sea level
+    pub snow_altitude: Option<u64>,
 }
 
-/// Fetch weather data from meteotrentino site
-pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
-    let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
-    let body = reqwest::blocking::get(base_url + locality)?.text()?;
-
-    let data: serde_json::Value = serde_json::from_str(&body).unwrap();
+/// Build Forecast struct from raw data
+fn build_weather_data(body: &str) -> serde_json::Result<Forecast> {
+    let raw_data: serde_json::Value = serde_json::from_str(body)?;
 
     let mut days: Vec<Day> = Vec::new();
 
     // Iterate through all days
-    for day_raw in data["previsione"][0]["giorni"].as_array().unwrap() {
+    for day_raw in raw_data["previsione"][0]["giorni"].as_array().unwrap() {
         let mut time_ranges: Vec<TimeRange> = Vec::new();
 
         // Iterate through all time ranges
@@ -85,7 +101,8 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
                     .unwrap()
                     .parse::<i8>()
                     .unwrap(),
-                freezing_level: time_range_raw["zeroTermico"].as_u64().unwrap() as u16,
+                freezing_altitude: time_range_raw["zeroTermico"].as_u64().unwrap() as u16,
+                snow_altitude: time_range_raw["limiteNevicate"].as_u64(),
                 brief_description: time_range_raw["descIcona"].to_string(),
             });
         }
@@ -94,33 +111,61 @@ pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
         days.push(Day {
             date: NaiveDate::parse_from_str(day_raw["giorno"].as_str().unwrap(), "%Y-%m-%d")
                 .unwrap(),
-            temperature_max: data["previsione"][0]["giorni"][0]["tMaxGiorno"]
-                .as_i64()
-                .unwrap() as i8,
-            temperature_min: data["previsione"][0]["giorni"][0]["tMinGiorno"]
-                .as_i64()
-                .unwrap() as i8,
-            description: String::from(
-                data["previsione"][0]["giorni"][0]["testoGiorno"]
-                    .as_str()
-                    .unwrap(),
-            ),
+            temperature_max: day_raw["tMaxGiorno"].as_i64().unwrap() as i8,
+            temperature_min: day_raw["tMinGiorno"].as_i64().unwrap() as i8,
+            description: String::from(day_raw["testoGiorno"].as_str().unwrap()),
             time_ranges,
         });
     }
 
     Ok(Forecast {
-        id: data["idPrevisione"].as_u64().unwrap(),
+        id: raw_data["idPrevisione"].as_u64().unwrap(),
         date: Local
             .datetime_from_str(
-                data["dataPubblicazione"].as_str().unwrap(),
+                raw_data["dataPubblicazione"].as_str().unwrap(),
                 "%Y-%m-%dT%H:%M%z",
             )
             .unwrap(),
         days,
-        locality: data["previsione"][0]["localita"].to_string(),
-        height: data["previsione"][0]["quota"].as_u64().unwrap() as u16,
+        locality: raw_data["previsione"][0]["localita"].to_string(),
+        height: raw_data["previsione"][0]["quota"].as_u64().unwrap() as u16,
     })
+}
+
+/// Read config from config.toml
+fn read_config() -> Option<Config> {
+    let mut config_path = config_dir().unwrap();
+    config_path.push("mttw");
+    config_path.push("config.toml");
+
+    let config_raw = match std::fs::read_to_string(&config_path) {
+        Ok(data_raw) => data_raw,
+        Err(_) => return None,
+    };
+
+    match toml::from_str(&config_raw) {
+        Ok(data) => Some(data),
+        Err(_) => None,
+    }
+}
+
+/// Fetch weather data from meteotrentino site
+pub fn fetch_weather_data(locality: &Option<String>) -> Result<Forecast, reqwest::Error> {
+    let default_config = Config {
+        default: {
+            ConfigDefault {
+                locality: String::from("Trento"),
+            }
+        },
+    };
+    let config: Config = read_config().unwrap_or(default_config);
+    let locality = match locality {
+        Some(c) => c,
+        None => config.default.locality.as_str(),
+    };
+    let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
+    let body = reqwest::blocking::get(base_url + locality)?.text()?;
+    Ok(build_weather_data(&body).unwrap())
 }
 
 /*

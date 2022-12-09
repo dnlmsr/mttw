@@ -38,6 +38,7 @@ fn main() {
     }
 
     let day = match &args.command {
+        // TODO: merge none with today
         None => 0,
         Some(Commands::Today) => 0,
         Some(Commands::Tomorrow) => 1,

@@ -1,4 +1,5 @@
 use chrono::prelude::*;
+use dirs::config_dir;
 use serde_derive::Deserialize;
 use toml;
 
@@ -129,13 +130,14 @@ fn build_weather_data(body: &str) -> serde_json::Result<Forecast> {
 }
 
 fn read_config() -> Option<Config> {
-    // TODO: Handle hardcoded path
-    let filename = "/home/daniele/.config/mttw/config.toml";
+    let mut filename = config_dir().unwrap();
+    filename.push("mttw");
+    filename.push("config.toml");
 
-    let contents = match std::fs::read_to_string(filename) {
+    let contents = match std::fs::read_to_string(&filename) {
         Ok(data_raw) => data_raw,
         Err(_) => {
-            eprintln!("Could not read file `{}`", filename);
+            eprintln!("Could not read file `{}`", filename.to_str().unwrap());
             std::process::exit(1);
         }
     };

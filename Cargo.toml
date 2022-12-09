@@ -10,3 +10,6 @@ reqwest = { version = "0.11", features = ["blocking"] }
 serde_json = "*"
 clap = { version = "3.2.8", features = ["derive"] }
 chrono = "0.4.19"
+toml = "0.5.9"
+serde_derive = "1.0.149"
+serde = "1.0.149"

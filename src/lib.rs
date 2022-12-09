@@ -1,4 +1,16 @@
 use chrono::prelude::*;
+use serde_derive::Deserialize;
+use toml;
+
+#[derive(Deserialize)]
+struct ConfigData {
+    default: Config,
+}
+
+#[derive(Deserialize)]
+struct Config {
+    locality: String,
+}
 
 /// The main forecast structure which contains all informations parsed from the official Meteotrentino data
 #[derive(Debug)]
@@ -116,8 +128,31 @@ fn build_weather_data(body: &str) -> serde_json::Result<Forecast> {
     })
 }
 
+fn read_config() {
+    let filename = "/home/daniele/.config/mttw/config.toml";
+
+    let contents = match std::fs::read_to_string(filename) {
+        Ok(c) => c,
+        Err(_) => {
+            eprintln!("Could not read file `{}`", filename);
+            std::process::exit(1);
+        }
+    };
+
+    let data: ConfigData = match toml::from_str(&contents) {
+        Ok(d) => d,
+        Err(_) => {
+            eprintln!("Unable to load data from `{}`", filename);
+            std::process::exit(1);
+        }
+    };
+
+    println!("Defaut locality from config is {}", data.default.locality); // => 42.69.42.0
+}
+
 /// Fetch weather data from meteotrentino site
 pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
+    read_config();
     let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
     let body = reqwest::blocking::get(base_url + locality)?.text()?;
     Ok(build_weather_data(&body).unwrap())

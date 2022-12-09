@@ -76,14 +76,12 @@ pub struct TimeRange {
     pub snow_altitude: Option<u64>,
 }
 
-/// Build Forecast struct from raw data
-fn build_forecast_from_json(body: &str) -> serde_json::Result<Forecast> {
-    let raw_data: serde_json::Value = serde_json::from_str(body)?;
-
+/// Build Day struct vec from raw data
+fn build_days_from_json(days_raw: &serde_json::Value) -> serde_json::Result<Vec<Day>> {
     let mut days: Vec<Day> = Vec::new();
 
     // Iterate through all days
-    for day_raw in raw_data["previsione"][0]["giorni"].as_array().unwrap() {
+    for day_raw in days_raw.as_array().unwrap() {
         let mut time_ranges: Vec<TimeRange> = Vec::new();
 
         // Iterate through all time ranges
@@ -118,6 +116,14 @@ fn build_forecast_from_json(body: &str) -> serde_json::Result<Forecast> {
         });
     }
 
+    Ok(days)
+}
+
+/// Build Forecast struct from raw data
+fn build_forecast_from_json(body: &str) -> serde_json::Result<Forecast> {
+    let raw_data: serde_json::Value = serde_json::from_str(body)?;
+
+    let days = build_days_from_json(&raw_data["previsione"][0]["giorni"]).unwrap();
     Ok(Forecast {
         id: raw_data["idPrevisione"].as_u64().unwrap(),
         date: Local

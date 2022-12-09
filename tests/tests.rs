@@ -46,3 +46,10 @@ fn test_other_days() {
         assert!(day.temperature_max > day.temperature_min);
     }
 }
+
+#[test]
+fn test_freezing_altitude() {
+    let locality = "TRENTO";
+    let forecast = mttw::fetch_weather_data(&Some(String::from(locality))).unwrap();
+    assert!(forecast.days[0].time_ranges[0].freezing_altitude > 0);
+}

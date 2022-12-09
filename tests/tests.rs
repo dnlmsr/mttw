@@ -8,7 +8,7 @@ fn test_correct_forecast_names() {
         "rifugio pedrotti  alla tosa",
     ];
     for locality in localities {
-        let forecast = mttw::fetch_weather_data(locality).unwrap();
+        let forecast = mttw::fetch_weather_data(&Some(String::from(locality))).unwrap();
         assert!(forecast.days[0].temperature_max > forecast.days[0].temperature_min);
     }
 }
@@ -17,14 +17,14 @@ fn test_correct_forecast_names() {
 #[should_panic]
 fn test_incorrect_forecast_names() {
     let locality = "undefined";
-    let forecast = mttw::fetch_weather_data(locality).unwrap();
+    let forecast = mttw::fetch_weather_data(&Some(String::from(locality))).unwrap();
     println!("{}", forecast.days[0].description)
 }
 
 #[test]
 fn test_correct_temperatures() {
     let locality = "TRENTO";
-    let forecast = mttw::fetch_weather_data(locality).unwrap();
+    let forecast = mttw::fetch_weather_data(&Some(String::from(locality))).unwrap();
     assert!(forecast.days[0].temperature_max > forecast.days[0].temperature_min);
     assert!(forecast.days[0].temperature_min > -100);
     assert!(forecast.days[0].temperature_max < 100);
@@ -33,14 +33,14 @@ fn test_correct_temperatures() {
 #[test]
 fn test_correct_brief() {
     let locality = "TRENTO";
-    let forecast = mttw::fetch_weather_data(locality).unwrap();
+    let forecast = mttw::fetch_weather_data(&Some(String::from(locality))).unwrap();
     assert!(forecast.days[0].description.chars().count() > 10);
 }
 
 #[test]
 fn test_other_days() {
     let locality = "TRENTO";
-    let forecast = mttw::fetch_weather_data(locality).unwrap();
+    let forecast = mttw::fetch_weather_data(&Some(String::from(locality))).unwrap();
     assert!(forecast.days.len() > 3);
     for day in forecast.days {
         assert!(day.temperature_max > day.temperature_min);

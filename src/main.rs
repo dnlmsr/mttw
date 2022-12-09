@@ -7,8 +7,8 @@ use clap::{Parser, Subcommand};
 #[clap(propagate_version = true)]
 struct Args {
     /// Name of the locality
-    #[clap(global = true, short, long, value_parser, default_value_t = String::from("TRENTO"))]
-    locality: String,
+    #[clap(global = true, short, long, value_parser)]
+    locality: Option<String>,
 
     #[clap(subcommand)]
     command: Option<Commands>,
@@ -26,7 +26,7 @@ fn main() {
 
     let forecast = mttw::fetch_weather_data(&args.locality).unwrap();
 
-    println!("Weather forecast for: {}.", &args.locality);
+    println!("Weather forecast for: {}.", forecast.locality);
     {
         let time_now = Local::now().time();
         let time_difference = time_now - forecast.date.time();
@@ -38,6 +38,7 @@ fn main() {
     }
 
     let day = match &args.command {
+        // TODO: merge none with today
         None => 0,
         Some(Commands::Today) => 0,
         Some(Commands::Tomorrow) => 1,

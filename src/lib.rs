@@ -1,15 +1,18 @@
 use chrono::prelude::*;
 use dirs::config_dir;
 use serde_derive::Deserialize;
-use toml;
 
+/// Config file main struct
 #[derive(Deserialize)]
 struct Config {
+    /// Config file default section
     default: ConfigDefault,
 }
 
+/// Config file default section
 #[derive(Deserialize)]
 struct ConfigDefault {
+    /// Default locality
     locality: String,
 }
 
@@ -66,8 +69,8 @@ pub struct TimeRange {
     /// Rain intensity expressed with a number between 1 and 4
     pub rain_intensity: i8,
 
-    /// The freezing level expressed in meters above sea level
-    pub freezing_level: u16,
+    /// The freezing altitude expressed in meters above sea level
+    pub freezing_altitude: u16,
 
     /// The snow altitude expressed in meters above sea level
     pub snow_altitude: Option<u64>,
@@ -75,7 +78,7 @@ pub struct TimeRange {
 
 /// Build Forecast struct from raw data
 fn build_weather_data(body: &str) -> serde_json::Result<Forecast> {
-    let raw_data: serde_json::Value = serde_json::from_str(&body)?;
+    let raw_data: serde_json::Value = serde_json::from_str(body)?;
 
     let mut days: Vec<Day> = Vec::new();
 
@@ -98,7 +101,7 @@ fn build_weather_data(body: &str) -> serde_json::Result<Forecast> {
                     .unwrap()
                     .parse::<i8>()
                     .unwrap(),
-                freezing_level: time_range_raw["zeroTermico"].as_u64().unwrap() as u16,
+                freezing_altitude: time_range_raw["zeroTermico"].as_u64().unwrap() as u16,
                 snow_altitude: time_range_raw["limiteNevicate"].as_u64(),
                 brief_description: time_range_raw["descIcona"].to_string(),
             });
@@ -129,17 +132,18 @@ fn build_weather_data(body: &str) -> serde_json::Result<Forecast> {
     })
 }
 
+/// Read config from config.toml
 fn read_config() -> Option<Config> {
-    let mut filename = config_dir().unwrap();
-    filename.push("mttw");
-    filename.push("config.toml");
+    let mut config_path = config_dir().unwrap();
+    config_path.push("mttw");
+    config_path.push("config.toml");
 
-    let contents = match std::fs::read_to_string(&filename) {
+    let config_raw = match std::fs::read_to_string(&config_path) {
         Ok(data_raw) => data_raw,
         Err(_) => return None,
     };
 
-    match toml::from_str(&contents) {
+    match toml::from_str(&config_raw) {
         Ok(data) => Some(data),
         Err(_) => None,
     }

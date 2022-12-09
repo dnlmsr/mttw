@@ -23,8 +23,7 @@ fn test_incorrect_forecast_names() {
 
 #[test]
 fn test_correct_temperatures() {
-    let locality = "TRENTO";
-    let forecast = mttw::fetch_weather_data(&Some(String::from(locality))).unwrap();
+    let forecast = mttw::fetch_weather_data(&None).unwrap();
     assert!(forecast.days[0].temperature_max > forecast.days[0].temperature_min);
     assert!(forecast.days[0].temperature_min > -100);
     assert!(forecast.days[0].temperature_max < 100);
@@ -32,17 +31,21 @@ fn test_correct_temperatures() {
 
 #[test]
 fn test_correct_brief() {
-    let locality = "TRENTO";
-    let forecast = mttw::fetch_weather_data(&Some(String::from(locality))).unwrap();
+    let forecast = mttw::fetch_weather_data(&None).unwrap();
     assert!(forecast.days[0].description.chars().count() > 10);
 }
 
 #[test]
 fn test_other_days() {
-    let locality = "TRENTO";
-    let forecast = mttw::fetch_weather_data(&Some(String::from(locality))).unwrap();
+    let forecast = mttw::fetch_weather_data(&None).unwrap();
     assert!(forecast.days.len() > 3);
     for day in forecast.days {
         assert!(day.temperature_max > day.temperature_min);
     }
+}
+
+#[test]
+fn test_freezing_altitude() {
+    let forecast = mttw::fetch_weather_data(&None).unwrap();
+    assert!(forecast.days[0].time_ranges[0].freezing_altitude > 0);
 }

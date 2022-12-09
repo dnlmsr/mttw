@@ -147,7 +147,14 @@ fn read_config() -> Option<Config> {
 
 /// Fetch weather data from meteotrentino site
 pub fn fetch_weather_data(locality: &Option<String>) -> Result<Forecast, reqwest::Error> {
-    let config: Config = read_config().unwrap();
+    let default_config = Config {
+        default: {
+            ConfigDefault {
+                locality: String::from("Trento"),
+            }
+        },
+    };
+    let config: Config = read_config().unwrap_or(default_config);
     let locality = match locality {
         Some(c) => c,
         None => config.default.locality.as_str(),

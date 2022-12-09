@@ -76,34 +76,42 @@ pub struct TimeRange {
     pub snow_altitude: Option<u64>,
 }
 
+/// Build TimeRange struct vec from raw data
+fn build_time_ranges_from_json(
+    time_ranges_raw: &serde_json::Value,
+) -> serde_json::Result<Vec<TimeRange>> {
+    let mut time_ranges: Vec<TimeRange> = Vec::new();
+    // Iterate through all time ranges
+    for time_range_raw in time_ranges_raw.as_array().unwrap() {
+        // Push time range to vector
+        time_ranges.push(TimeRange {
+            time_range: time_range_raw["fasciaOre"].to_string(),
+            rain_probability: time_range_raw["idPrecProb"]
+                .as_str()
+                .unwrap()
+                .parse::<i8>()
+                .unwrap(),
+            rain_intensity: time_range_raw["idPrecInten"]
+                .as_str()
+                .unwrap()
+                .parse::<i8>()
+                .unwrap(),
+            freezing_altitude: time_range_raw["zeroTermico"].as_u64().unwrap() as u16,
+            snow_altitude: time_range_raw["limiteNevicate"].as_u64(),
+            brief_description: time_range_raw["descIcona"].to_string(),
+        });
+    }
+    Ok(time_ranges)
+}
+
 /// Build Day struct vec from raw data
 fn build_days_from_json(days_raw: &serde_json::Value) -> serde_json::Result<Vec<Day>> {
     let mut days: Vec<Day> = Vec::new();
 
     // Iterate through all days
     for day_raw in days_raw.as_array().unwrap() {
-        let mut time_ranges: Vec<TimeRange> = Vec::new();
-
         // Iterate through all time ranges
-        for time_range_raw in day_raw["fasce"].as_array().unwrap() {
-            // Push time range to vector
-            time_ranges.push(TimeRange {
-                time_range: time_range_raw["fasciaOre"].to_string(),
-                rain_probability: time_range_raw["idPrecProb"]
-                    .as_str()
-                    .unwrap()
-                    .parse::<i8>()
-                    .unwrap(),
-                rain_intensity: time_range_raw["idPrecInten"]
-                    .as_str()
-                    .unwrap()
-                    .parse::<i8>()
-                    .unwrap(),
-                freezing_altitude: time_range_raw["zeroTermico"].as_u64().unwrap() as u16,
-                snow_altitude: time_range_raw["limiteNevicate"].as_u64(),
-                brief_description: time_range_raw["descIcona"].to_string(),
-            });
-        }
+        let time_ranges = build_time_ranges_from_json(&day_raw["fasce"]).unwrap();
 
         // Push day to vector
         days.push(Day {

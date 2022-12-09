@@ -77,7 +77,7 @@ pub struct TimeRange {
 }
 
 /// Build Forecast struct from raw data
-fn build_weather_data(body: &str) -> serde_json::Result<Forecast> {
+fn build_forecast_from_json(body: &str) -> serde_json::Result<Forecast> {
     let raw_data: serde_json::Value = serde_json::from_str(body)?;
 
     let mut days: Vec<Day> = Vec::new();
@@ -165,7 +165,7 @@ pub fn fetch_weather_data(locality: &Option<String>) -> Result<Forecast, reqwest
     };
     let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
     let body = reqwest::blocking::get(base_url + locality)?.text()?;
-    Ok(build_weather_data(&body).unwrap())
+    Ok(build_forecast_from_json(&body).unwrap())
 }
 
 /*

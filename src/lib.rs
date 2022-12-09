@@ -136,10 +136,7 @@ fn read_config() -> Option<Config> {
 
     let contents = match std::fs::read_to_string(&filename) {
         Ok(data_raw) => data_raw,
-        Err(_) => {
-            eprintln!("Could not read file `{}`", filename.to_str().unwrap());
-            std::process::exit(1);
-        }
+        Err(_) => return None,
     };
 
     match toml::from_str(&contents) {

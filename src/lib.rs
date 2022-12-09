@@ -2,13 +2,17 @@ use chrono::prelude::*;
 use dirs::config_dir;
 use serde_derive::Deserialize;
 
+/// Config file main struct
 #[derive(Deserialize)]
 struct Config {
+    /// Config file default section
     default: ConfigDefault,
 }
 
+/// Config file default section
 #[derive(Deserialize)]
 struct ConfigDefault {
+    /// Default locality
     locality: String,
 }
 

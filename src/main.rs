@@ -10,11 +10,12 @@ struct Args {
     #[clap(global = true, short, long, value_parser)]
     locality: Option<String>,
 
+    /// CLI subcommands
     #[clap(subcommand)]
     command: Option<Commands>,
 }
 
-/// CLI commands
+/// CLI subcommands
 #[derive(Subcommand, Debug)]
 enum Commands {
     /// Show today weather

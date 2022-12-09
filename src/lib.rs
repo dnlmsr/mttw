@@ -147,7 +147,12 @@ fn read_config() -> Option<Config> {
 }
 
 /// Fetch weather data from meteotrentino site
-pub fn fetch_weather_data(locality: &str) -> Result<Forecast, reqwest::Error> {
+pub fn fetch_weather_data(locality: &Option<String>) -> Result<Forecast, reqwest::Error> {
+    let config: Config = read_config().unwrap();
+    let locality = match locality {
+        Some(c) => c,
+        None => config.default.locality.as_str(),
+    };
     let base_url = String::from("https://www.meteotrentino.it/protcivtn-meteo/api/front/previsioneOpenDataLocalita?localita=");
     let body = reqwest::blocking::get(base_url + locality)?.text()?;
     Ok(build_weather_data(&body).unwrap())

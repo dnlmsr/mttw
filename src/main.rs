@@ -68,6 +68,6 @@ fn main() {
         forecast.days[day].time_ranges[0].freezing_altitude
     );
     if let Some(snow_altitude) = forecast.days[day].time_ranges[0].snow_altitude {
-        println!("Snow altitude: {}m", snow_altitude)
+        println!("Snow altitude: {snow_altitude}m");
     }
 }

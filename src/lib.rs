@@ -29,7 +29,7 @@ pub struct Forecast {
     pub height: u16,
 
     /// The forecast date and local time
-    pub date: DateTime<Local>,
+    pub date: DateTime<FixedOffset>,
 
     /// Vector of available upcoming days
     pub days: Vec<Day>,
@@ -140,12 +140,11 @@ fn build_forecast_from_json(body: &str) -> serde_json::Result<Forecast> {
     let days = build_days_from_json(&raw_data["previsione"][0]["giorni"]).unwrap();
     Ok(Forecast {
         id: raw_data["idPrevisione"].as_u64().unwrap(),
-        date: Local
-            .datetime_from_str(
-                raw_data["dataPubblicazione"].as_str().unwrap(),
-                "%Y-%m-%dT%H:%M%z",
-            )
-            .unwrap(),
+        date: DateTime::parse_from_str(
+            raw_data["dataPubblicazione"].as_str().unwrap(),
+            "%Y-%m-%dT%H:%M%z",
+        )
+        .unwrap(),
         days,
         locality: raw_data["previsione"][0]["localita"].to_string(),
         height: raw_data["previsione"][0]["quota"].as_u64().unwrap() as u16,

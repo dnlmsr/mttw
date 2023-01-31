@@ -1,4 +1,4 @@
-use chrono::Local;
+use chrono::{Duration, Local};
 use clap::{Parser, Subcommand};
 
 /// Meteotrentino wrapper
@@ -41,33 +41,25 @@ fn main() {
         );
     }
 
+    let now = Local::now();
+
     let day = match &args.command {
-        None | Some(Commands::Today) => 0,
-        Some(Commands::Tomorrow) => 1,
+        None | Some(Commands::Today) => forecast.get_day(&now.date_naive()).unwrap(),
+        Some(Commands::Tomorrow) => forecast
+            .get_day(&(now.date_naive() + Duration::days(1)))
+            .unwrap(),
     };
     println!("\nDay forecast");
-    println!("Max. temperature: {}°C", forecast.days[day].temperature_max);
-    println!("Min temperature: {}°C", forecast.days[day].temperature_min);
-    println!("Description: {}", forecast.days[day].description);
+    println!("Max. temperature: {}°C", day.temperature_max);
+    println!("Min temperature: {}°C", day.temperature_min);
+    println!("Description: {}", day.description);
 
     println!("\nTime range forecast");
-    println!(
-        "Brief description {}",
-        forecast.days[day].time_ranges[0].brief_description
-    );
-    println!(
-        "Rain probability: {}",
-        forecast.days[day].time_ranges[0].rain_probability
-    );
-    println!(
-        "Rain intensity: {}",
-        forecast.days[day].time_ranges[0].rain_intensity
-    );
-    println!(
-        "Freezing level: {}m",
-        forecast.days[day].time_ranges[0].freezing_altitude
-    );
-    if let Some(snow_altitude) = forecast.days[day].time_ranges[0].snow_altitude {
+    println!("Brief description {}", day.time_ranges[0].brief_description);
+    println!("Rain probability: {}", day.time_ranges[0].rain_probability);
+    println!("Rain intensity: {}", day.time_ranges[0].rain_intensity);
+    println!("Freezing level: {}m", day.time_ranges[0].freezing_altitude);
+    if let Some(snow_altitude) = day.time_ranges[0].snow_altitude {
         println!("Snow altitude: {snow_altitude}m");
     }
 }

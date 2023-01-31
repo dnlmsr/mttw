@@ -76,6 +76,12 @@ pub struct TimeRange {
     pub snow_altitude: Option<u64>,
 }
 
+impl Forecast {
+    pub fn get_day(&self, day_to_get: &NaiveDate) -> Option<&Day> {
+        self.days.iter().find(|&day| day.date == *day_to_get)
+    }
+}
+
 /// Build TimeRange struct vec from raw data
 fn build_time_ranges_from_json(
     time_ranges_raw: &serde_json::Value,

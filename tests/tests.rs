@@ -53,7 +53,7 @@ fn test_freezing_altitude() {
 #[test]
 fn test_get_day() {
     let forecast = mttw::fetch_weather_data(&None).unwrap();
-    let day_to_get = chrono::NaiveDate::parse_from_str("2023-01-31", "%Y-%m-%d").unwrap();
-    let day: &mttw::Day = forecast.get_day(&day_to_get).unwrap();
+    let now = chrono::Local::now().date().naive_local();
+    let day: &mttw::Day = forecast.get_day(&now).unwrap();
     assert_eq!(day.date.to_string(), "2023-01-31");
 }

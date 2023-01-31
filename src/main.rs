@@ -25,10 +25,10 @@ enum Commands {
     Tomorrow,
 }
 
-fn main() {
+fn main() -> Result<(), reqwest::Error> {
     let args = Args::parse();
 
-    let forecast = mttw::fetch_weather_data(&args.locality).unwrap();
+    let forecast = mttw::fetch_weather_data(&args.locality)?;
 
     println!("Weather forecast for: {}.", forecast.locality);
     let time_now = Local::now();
@@ -59,4 +59,5 @@ fn main() {
     if let Some(snow_altitude) = day.time_ranges[0].snow_altitude {
         println!("Snow altitude: {snow_altitude}m");
     }
+    Ok(())
 }

@@ -31,22 +31,19 @@ fn main() {
     let forecast = mttw::fetch_weather_data(&args.locality).unwrap();
 
     println!("Weather forecast for: {}.", forecast.locality);
-    {
-        let time_now = Local::now().time();
-        let time_difference = time_now - forecast.date.time();
-        println!(
-            "Last forecast update was {} hours and {} minutes ago.",
-            time_difference.num_hours(),
-            time_difference.num_minutes() % 60
-        );
-    }
+    let time_now = Local::now();
 
-    let now = Local::now();
+    let time_difference = time_now.time() - forecast.date.time();
+    println!(
+        "Last forecast update was {} hours and {} minutes ago.",
+        time_difference.num_hours(),
+        time_difference.num_minutes() % 60
+    );
 
     let day = match &args.command {
-        None | Some(Commands::Today) => forecast.get_day(&now.date_naive()).unwrap(),
+        None | Some(Commands::Today) => forecast.get_day(&time_now.date_naive()).unwrap(),
         Some(Commands::Tomorrow) => forecast
-            .get_day(&(now.date_naive() + Duration::days(1)))
+            .get_day(&(time_now.date_naive() + Duration::days(1)))
             .unwrap(),
     };
     println!("\nDay forecast");

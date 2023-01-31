@@ -55,5 +55,5 @@ fn test_get_day() {
     let forecast = mttw::fetch_weather_data(&None).unwrap();
     let now = chrono::Local::now().date().naive_local();
     let day: &mttw::Day = forecast.get_day(&now).unwrap();
-    assert_eq!(day.date.to_string(), "2023-01-31");
+    assert_eq!(day.date.to_string(), now.to_string());
 }
